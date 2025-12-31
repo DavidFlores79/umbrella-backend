@@ -56,7 +56,8 @@ export class VendorController {
   @ApiOperation({
     operationId: 'findAllVendors',
     summary: 'Find all vendors',
-    description: 'Find all vendors for the current company with pagination and filtering',
+    description:
+      'Find all vendors for the current company with pagination and filtering',
   })
   @ApiPaginationResponse(VendorDto)
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })

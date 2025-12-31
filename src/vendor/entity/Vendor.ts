@@ -14,7 +14,10 @@ import {
 import { Company } from '../../company/entity/Company';
 
 @Entity({ name: 'vendors' })
-@Index('idx_vendor_company_email', ['companyId', 'email'], { unique: true, where: '"email" IS NOT NULL' })
+@Index('idx_vendor_company_email', ['companyId', 'email'], {
+  unique: true,
+  where: '"email" IS NOT NULL',
+})
 export class Vendor {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -56,7 +59,12 @@ export class Vendor {
   @Index('idx_vendor_tax_id')
   taxId: string | null;
 
-  @Column({ name: 'contact_name', type: 'varchar', length: 255, nullable: true })
+  @Column({
+    name: 'contact_name',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
   contactName: string | null;
 
   @Column({ type: 'text', nullable: true })

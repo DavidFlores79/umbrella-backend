@@ -105,7 +105,7 @@ export class SaleLineItemDto {
 
   @ApiProperty({
     description: 'Tax amount',
-    example: 9.60,
+    example: 9.6,
   })
   taxAmount: number;
 

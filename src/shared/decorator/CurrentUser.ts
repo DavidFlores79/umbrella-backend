@@ -2,19 +2,17 @@
 // ABOUTME: Used in controllers to access the authenticated user's information.
 
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import {
+  AuthenticatedRequest,
+  UserPayload,
+} from '../interface/AuthenticatedRequest';
 
-export interface CurrentUserPayload {
-  sub: string;
-  companyId: string;
-  role: string;
-  permissions: string[];
-  email?: string;
-}
+export type CurrentUserPayload = UserPayload;
 
 export const CurrentUser = createParamDecorator(
-  (data: keyof CurrentUserPayload | undefined, ctx: ExecutionContext) => {
-    const request = ctx.switchToHttp().getRequest();
-    const user = request.user as CurrentUserPayload;
+  (data: keyof UserPayload | undefined, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest<AuthenticatedRequest>();
+    const user = request.user;
 
     if (data) {
       return user?.[data];

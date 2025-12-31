@@ -130,7 +130,7 @@ export class CompanyService {
         );
       }
 
-      const row = result.raw[0];
+      const row = (result.raw as Record<string, unknown>[])[0];
       return this.mapRowToEntity(row);
     });
   }
@@ -188,25 +188,25 @@ export class CompanyService {
     }
   }
 
-  private mapRowToEntity(row: any): Company {
+  private mapRowToEntity(row: Record<string, unknown>): Company {
     const entity = new Company();
-    entity.id = row.id;
-    entity.name = row.name;
-    entity.email = row.email;
-    entity.phone = row.phone;
-    entity.address = row.address;
-    entity.city = row.city;
-    entity.state = row.state;
-    entity.country = row.country;
-    entity.postalCode = row.postal_code;
-    entity.taxId = row.tax_id;
-    entity.website = row.website;
-    entity.logo = row.logo;
-    entity.settings = row.settings;
-    entity.status = row.status;
-    entity.isActive = row.is_active;
-    entity.createdAt = row.created_at;
-    entity.updatedAt = row.updated_at;
+    entity.id = row.id as string;
+    entity.name = row.name as string;
+    entity.email = row.email as string;
+    entity.phone = row.phone as string | null;
+    entity.address = row.address as string | null;
+    entity.city = row.city as string | null;
+    entity.state = row.state as string | null;
+    entity.country = row.country as string | null;
+    entity.postalCode = row.postal_code as string | null;
+    entity.taxId = row.tax_id as string | null;
+    entity.website = row.website as string | null;
+    entity.logo = row.logo as string | null;
+    entity.settings = row.settings as Company['settings'];
+    entity.status = row.status as Company['status'];
+    entity.isActive = row.is_active as boolean;
+    entity.createdAt = row.created_at as Date;
+    entity.updatedAt = row.updated_at as Date;
     return entity;
   }
 }

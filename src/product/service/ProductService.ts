@@ -30,7 +30,9 @@ export class ProductService {
     companyId: string,
     payload: CreateProductPayloadDto,
   ): Promise<Product> {
-    this.logger.log(`Creating product: ${payload.name} for company: ${companyId}`);
+    this.logger.log(
+      `Creating product: ${payload.name} for company: ${companyId}`,
+    );
 
     await this.validateUniqueSku(companyId, payload.sku);
 
@@ -121,7 +123,7 @@ export class ProductService {
         );
       }
 
-      const row = result.raw[0];
+      const row = (result.raw as Record<string, unknown>[])[0];
       return this.mapRowToEntity(row);
     });
   }
@@ -190,26 +192,26 @@ export class ProductService {
     }
   }
 
-  private mapRowToEntity(row: any): Product {
+  private mapRowToEntity(row: Record<string, unknown>): Product {
     const entity = new Product();
-    entity.id = row.id;
-    entity.companyId = row.company_id;
-    entity.sku = row.sku;
-    entity.name = row.name;
-    entity.description = row.description;
-    entity.type = row.type;
-    entity.category = row.category;
-    entity.price = row.price;
-    entity.cost = row.cost;
-    entity.taxRate = row.tax_rate;
-    entity.unit = row.unit;
-    entity.trackInventory = row.track_inventory;
-    entity.minStock = row.min_stock;
-    entity.maxStock = row.max_stock;
-    entity.image = row.image;
-    entity.isActive = row.is_active;
-    entity.createdAt = row.created_at;
-    entity.updatedAt = row.updated_at;
+    entity.id = row.id as string;
+    entity.companyId = row.company_id as string;
+    entity.sku = row.sku as string;
+    entity.name = row.name as string;
+    entity.description = row.description as string | null;
+    entity.type = row.type as Product['type'];
+    entity.category = row.category as string | null;
+    entity.price = row.price as number;
+    entity.cost = row.cost as number | null;
+    entity.taxRate = row.tax_rate as number;
+    entity.unit = row.unit as string | null;
+    entity.trackInventory = row.track_inventory as boolean;
+    entity.minStock = row.min_stock as number | null;
+    entity.maxStock = row.max_stock as number | null;
+    entity.image = row.image as string | null;
+    entity.isActive = row.is_active as boolean;
+    entity.createdAt = row.created_at as Date;
+    entity.updatedAt = row.updated_at as Date;
     return entity;
   }
 }

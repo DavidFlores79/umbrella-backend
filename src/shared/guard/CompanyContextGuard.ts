@@ -7,11 +7,12 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
+import { AuthenticatedRequest } from '../interface/AuthenticatedRequest';
 
 @Injectable()
 export class CompanyContextGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const user = request.user;
 
     if (!user?.companyId) {

@@ -56,7 +56,8 @@ export class ClientController {
   @ApiOperation({
     operationId: 'findAllClients',
     summary: 'Find all clients',
-    description: 'Find all clients for the current company with pagination and filtering',
+    description:
+      'Find all clients for the current company with pagination and filtering',
   })
   @ApiPaginationResponse(ClientDto)
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })

@@ -60,7 +60,13 @@ export class Purchase {
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
   subtotal: number;
 
-  @Column({ name: 'tax_amount', type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @Column({
+    name: 'tax_amount',
+    type: 'decimal',
+    precision: 12,
+    scale: 2,
+    default: 0,
+  })
   taxAmount: number;
 
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
@@ -72,7 +78,9 @@ export class Purchase {
   @Column({ type: 'text', nullable: true })
   notes: string | null;
 
-  @OneToMany(() => PurchaseLineItem, (lineItem) => lineItem.purchase, { cascade: true })
+  @OneToMany(() => PurchaseLineItem, (lineItem) => lineItem.purchase, {
+    cascade: true,
+  })
   lineItems: PurchaseLineItem[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })

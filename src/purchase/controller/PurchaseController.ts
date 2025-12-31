@@ -30,7 +30,10 @@ import {
 import { PurchaseService } from '../service/PurchaseService';
 import { PurchaseDto } from '../dto/PurchaseDto';
 import { CreatePurchasePayloadDto } from '../dto/CreatePurchasePayloadDto';
-import { UpdatePurchasePayloadDto, UpdatePurchaseStatusDto } from '../dto/UpdatePurchasePayloadDto';
+import {
+  UpdatePurchasePayloadDto,
+  UpdatePurchaseStatusDto,
+} from '../dto/UpdatePurchasePayloadDto';
 import { FilterPurchasesQueryDto } from '../dto/FilterPurchasesQueryDto';
 import { PaginationResultDto } from '../../shared/dto/PaginationResultDto';
 import { ApiPaginationResponse } from '../../shared/decorator/ApiPaginationResult';
@@ -55,7 +58,8 @@ export class PurchaseController {
   @ApiOperation({
     operationId: 'findAllPurchases',
     summary: 'Find all purchases',
-    description: 'Find all purchases for the current company with pagination and filtering',
+    description:
+      'Find all purchases for the current company with pagination and filtering',
   })
   @ApiPaginationResponse(PurchaseDto)
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
@@ -66,7 +70,9 @@ export class PurchaseController {
     const response = await this.purchaseService.findAll(companyId, query);
 
     const pagination = new PaginationResultDto<PurchaseDto>();
-    pagination.docs = response.docs.map((purchase) => PurchaseDto.buildDto(purchase));
+    pagination.docs = response.docs.map((purchase) =>
+      PurchaseDto.buildDto(purchase),
+    );
     pagination.total = response.total;
     pagination.page = response.page;
     pagination.pages = response.pages;
@@ -106,7 +112,8 @@ export class PurchaseController {
   @ApiOperation({
     operationId: 'createPurchase',
     summary: 'Create a new purchase',
-    description: 'Create a new purchase with line items for the current company',
+    description:
+      'Create a new purchase with line items for the current company',
   })
   @ApiCreatedResponse({
     description: 'Purchase created successfully',
@@ -143,7 +150,11 @@ export class PurchaseController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() payload: UpdatePurchasePayloadDto,
   ): Promise<PurchaseDto> {
-    const purchase = await this.purchaseService.updateById(companyId, id, payload);
+    const purchase = await this.purchaseService.updateById(
+      companyId,
+      id,
+      payload,
+    );
     return PurchaseDto.buildDto(purchase);
   }
 
@@ -168,7 +179,11 @@ export class PurchaseController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() payload: UpdatePurchaseStatusDto,
   ): Promise<PurchaseDto> {
-    const purchase = await this.purchaseService.updateStatus(companyId, id, payload);
+    const purchase = await this.purchaseService.updateStatus(
+      companyId,
+      id,
+      payload,
+    );
     return PurchaseDto.buildDto(purchase);
   }
 

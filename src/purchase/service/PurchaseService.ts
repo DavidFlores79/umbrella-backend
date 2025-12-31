@@ -1,17 +1,24 @@
 // ABOUTME: Service layer for Purchase entity handling CRUD operations.
 // ABOUTME: Contains business logic for purchase management including line items and totals calculation.
 
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ILike, Between, LessThanOrEqual, MoreThanOrEqual, DataSource } from 'typeorm';
+import {
+  Repository,
+  ILike,
+  Between,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  DataSource,
+  EntityManager,
+} from 'typeorm';
 import { Purchase } from '../entity/Purchase';
 import { PurchaseLineItem } from '../entity/PurchaseLineItem';
 import { CreatePurchasePayloadDto } from '../dto/CreatePurchasePayloadDto';
-import { UpdatePurchasePayloadDto, UpdatePurchaseStatusDto } from '../dto/UpdatePurchasePayloadDto';
+import {
+  UpdatePurchasePayloadDto,
+  UpdatePurchaseStatusDto,
+} from '../dto/UpdatePurchasePayloadDto';
 import { FilterPurchasesQueryDto } from '../dto/FilterPurchasesQueryDto';
 import { PaginatedResult } from '../../shared/interface/Pagination';
 import { OutdatedEntityVersionError } from '../../shared/error/OutdatedEntityVersionError';
@@ -68,7 +75,9 @@ export class PurchaseService {
 
       await manager.save(savedPurchase);
 
-      this.logger.log(`Purchase created successfully with id: ${savedPurchase.id}`);
+      this.logger.log(
+        `Purchase created successfully with id: ${savedPurchase.id}`,
+      );
       return savedPurchase;
     });
   }
@@ -99,7 +108,9 @@ export class PurchaseService {
   }
 
   async findById(companyId: string, id: string): Promise<Purchase> {
-    this.logger.debug(`Finding purchase by id: ${id} for company: ${companyId}`);
+    this.logger.debug(
+      `Finding purchase by id: ${id} for company: ${companyId}`,
+    );
     const purchase = await this.purchaseRepository.findOne({
       where: { id, companyId },
       relations: ['lineItems'],
@@ -145,7 +156,10 @@ export class PurchaseService {
           lineItems.push(savedItem);
         }
 
-        const totals = this.calculateTotals(lineItems, restData.discount ?? purchase.discount);
+        const totals = this.calculateTotals(
+          lineItems,
+          restData.discount ?? purchase.discount,
+        );
         updateData.subtotal = totals.subtotal;
         updateData.taxAmount = totals.taxAmount;
         updateData.total = totals.total;
@@ -164,7 +178,9 @@ export class PurchaseService {
         .execute();
 
       if (result.affected === 0) {
-        this.logger.error(`Outdated version detected during update for purchase: ${id}`);
+        this.logger.error(
+          `Outdated version detected during update for purchase: ${id}`,
+        );
         throw new OutdatedEntityVersionError(
           'An old version of Purchase was detected during the update',
           'Purchase',
@@ -187,9 +203,11 @@ export class PurchaseService {
     id: string,
     payload: UpdatePurchaseStatusDto,
   ): Promise<Purchase> {
-    this.logger.log(`Updating purchase status for id: ${id} to ${payload.status}`);
+    this.logger.log(
+      `Updating purchase status for id: ${id} to ${payload.status}`,
+    );
 
-    const purchase = await this.findById(companyId, id);
+    await this.findById(companyId, id);
 
     return this.dataSource.transaction(async (manager) => {
       const result = await manager
@@ -257,7 +275,7 @@ export class PurchaseService {
 
   private async generatePoNumber(
     companyId: string,
-    manager: any,
+    manager: EntityManager,
   ): Promise<string> {
     const company = await this.companyService.findById(companyId);
     const prefix = company.settings?.purchaseOrderPrefix || 'PO-';
@@ -279,7 +297,13 @@ export class PurchaseService {
     return `${prefix}${year}-${sequence.toString().padStart(4, '0')}`;
   }
 
-  private calculateLineItem(itemData: any): PurchaseLineItem {
+  private calculateLineItem(itemData: {
+    productId?: string;
+    description: string;
+    quantity: number;
+    unitCost: number;
+    taxRate?: number;
+  }): PurchaseLineItem {
     const lineItem = new PurchaseLineItem();
     lineItem.productId = itemData.productId || null;
     lineItem.description = itemData.description;
@@ -288,9 +312,15 @@ export class PurchaseService {
     lineItem.taxRate = itemData.taxRate || 0;
     lineItem.quantityReceived = 0;
 
-    lineItem.subtotal = Number((lineItem.quantity * lineItem.unitCost).toFixed(2));
-    lineItem.taxAmount = Number((lineItem.subtotal * lineItem.taxRate / 100).toFixed(2));
-    lineItem.total = Number((lineItem.subtotal + lineItem.taxAmount).toFixed(2));
+    lineItem.subtotal = Number(
+      (lineItem.quantity * lineItem.unitCost).toFixed(2),
+    );
+    lineItem.taxAmount = Number(
+      ((lineItem.subtotal * lineItem.taxRate) / 100).toFixed(2),
+    );
+    lineItem.total = Number(
+      (lineItem.subtotal + lineItem.taxAmount).toFixed(2),
+    );
 
     return lineItem;
   }
@@ -299,8 +329,14 @@ export class PurchaseService {
     lineItems: PurchaseLineItem[],
     discount: number,
   ): { subtotal: number; taxAmount: number; total: number } {
-    const subtotal = lineItems.reduce((sum, item) => sum + Number(item.subtotal), 0);
-    const taxAmount = lineItems.reduce((sum, item) => sum + Number(item.taxAmount), 0);
+    const subtotal = lineItems.reduce(
+      (sum, item) => sum + Number(item.subtotal),
+      0,
+    );
+    const taxAmount = lineItems.reduce(
+      (sum, item) => sum + Number(item.taxAmount),
+      0,
+    );
     const total = Number((subtotal + taxAmount - discount).toFixed(2));
 
     return { subtotal, taxAmount, total };

@@ -1,7 +1,7 @@
 // ABOUTME: DTO for company settings validation and serialization.
 // ABOUTME: Used for updating company settings with proper validation rules.
 
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsString,
   IsNumber,

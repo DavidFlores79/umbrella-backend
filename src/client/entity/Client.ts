@@ -14,7 +14,10 @@ import {
 import { Company } from '../../company/entity/Company';
 
 @Entity({ name: 'clients' })
-@Index('idx_client_company_email', ['companyId', 'email'], { unique: true, where: '"email" IS NOT NULL' })
+@Index('idx_client_company_email', ['companyId', 'email'], {
+  unique: true,
+  where: '"email" IS NOT NULL',
+})
 export class Client {
   @PrimaryGeneratedColumn('uuid')
   id: string;

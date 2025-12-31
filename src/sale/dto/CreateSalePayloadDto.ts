@@ -54,7 +54,7 @@ export class CreateSalePayloadDto {
 
   @ApiPropertyOptional({
     description: 'Discount amount',
-    example: 10.00,
+    example: 10.0,
     minimum: 0,
     default: 0,
   })

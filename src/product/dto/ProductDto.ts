@@ -58,7 +58,7 @@ export class ProductDto {
 
   @ApiProperty({
     description: 'Cost price',
-    example: 15.00,
+    example: 15.0,
   })
   cost: number;
 

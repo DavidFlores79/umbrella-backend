@@ -1,21 +1,27 @@
 // ABOUTME: Service layer for Sale entity handling CRUD operations.
 // ABOUTME: Contains business logic for sale management including line items and totals calculation.
 
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ILike, Between, LessThanOrEqual, MoreThanOrEqual, DataSource } from 'typeorm';
+import {
+  Repository,
+  ILike,
+  Between,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  DataSource,
+  EntityManager,
+} from 'typeorm';
 import { Sale } from '../entity/Sale';
 import { SaleLineItem } from '../entity/SaleLineItem';
 import { CreateSalePayloadDto } from '../dto/CreateSalePayloadDto';
-import { UpdateSalePayloadDto, UpdateSaleStatusDto } from '../dto/UpdateSalePayloadDto';
+import {
+  UpdateSalePayloadDto,
+  UpdateSaleStatusDto,
+} from '../dto/UpdateSalePayloadDto';
 import { FilterSalesQueryDto } from '../dto/FilterSalesQueryDto';
 import { PaginatedResult } from '../../shared/interface/Pagination';
 import { OutdatedEntityVersionError } from '../../shared/error/OutdatedEntityVersionError';
-import { SaleStatus } from '../enum/SaleStatus';
 import { CompanyService } from '../../company/service/CompanyService';
 
 @Injectable()
@@ -38,7 +44,10 @@ export class SaleService {
     this.logger.log(`Creating sale for company: ${companyId}`);
 
     return this.dataSource.transaction(async (manager) => {
-      const invoiceNumber = await this.generateInvoiceNumber(companyId, manager);
+      const invoiceNumber = await this.generateInvoiceNumber(
+        companyId,
+        manager,
+      );
 
       const { lineItems: lineItemsData, ...saleData } = payload;
 
@@ -146,7 +155,10 @@ export class SaleService {
           lineItems.push(savedItem);
         }
 
-        const totals = this.calculateTotals(lineItems, restData.discount ?? sale.discount);
+        const totals = this.calculateTotals(
+          lineItems,
+          restData.discount ?? sale.discount,
+        );
         updateData.subtotal = totals.subtotal;
         updateData.taxAmount = totals.taxAmount;
         updateData.total = totals.total;
@@ -165,7 +177,9 @@ export class SaleService {
         .execute();
 
       if (result.affected === 0) {
-        this.logger.error(`Outdated version detected during update for sale: ${id}`);
+        this.logger.error(
+          `Outdated version detected during update for sale: ${id}`,
+        );
         throw new OutdatedEntityVersionError(
           'An old version of Sale was detected during the update',
           'Sale',
@@ -190,7 +204,7 @@ export class SaleService {
   ): Promise<Sale> {
     this.logger.log(`Updating sale status for id: ${id} to ${payload.status}`);
 
-    const sale = await this.findById(companyId, id);
+    await this.findById(companyId, id);
 
     return this.dataSource.transaction(async (manager) => {
       const result = await manager
@@ -258,7 +272,7 @@ export class SaleService {
 
   private async generateInvoiceNumber(
     companyId: string,
-    manager: any,
+    manager: EntityManager,
   ): Promise<string> {
     const company = await this.companyService.findById(companyId);
     const prefix = company.settings?.invoicePrefix || 'INV-';
@@ -280,7 +294,13 @@ export class SaleService {
     return `${prefix}${year}-${sequence.toString().padStart(4, '0')}`;
   }
 
-  private calculateLineItem(itemData: any): SaleLineItem {
+  private calculateLineItem(itemData: {
+    productId?: string;
+    description: string;
+    quantity: number;
+    unitPrice: number;
+    taxRate?: number;
+  }): SaleLineItem {
     const lineItem = new SaleLineItem();
     lineItem.productId = itemData.productId || null;
     lineItem.description = itemData.description;
@@ -288,9 +308,15 @@ export class SaleService {
     lineItem.unitPrice = itemData.unitPrice;
     lineItem.taxRate = itemData.taxRate || 0;
 
-    lineItem.subtotal = Number((lineItem.quantity * lineItem.unitPrice).toFixed(2));
-    lineItem.taxAmount = Number((lineItem.subtotal * lineItem.taxRate / 100).toFixed(2));
-    lineItem.total = Number((lineItem.subtotal + lineItem.taxAmount).toFixed(2));
+    lineItem.subtotal = Number(
+      (lineItem.quantity * lineItem.unitPrice).toFixed(2),
+    );
+    lineItem.taxAmount = Number(
+      ((lineItem.subtotal * lineItem.taxRate) / 100).toFixed(2),
+    );
+    lineItem.total = Number(
+      (lineItem.subtotal + lineItem.taxAmount).toFixed(2),
+    );
 
     return lineItem;
   }
@@ -299,8 +325,14 @@ export class SaleService {
     lineItems: SaleLineItem[],
     discount: number,
   ): { subtotal: number; taxAmount: number; total: number } {
-    const subtotal = lineItems.reduce((sum, item) => sum + Number(item.subtotal), 0);
-    const taxAmount = lineItems.reduce((sum, item) => sum + Number(item.taxAmount), 0);
+    const subtotal = lineItems.reduce(
+      (sum, item) => sum + Number(item.subtotal),
+      0,
+    );
+    const taxAmount = lineItems.reduce(
+      (sum, item) => sum + Number(item.taxAmount),
+      0,
+    );
     const total = Number((subtotal + taxAmount - discount).toFixed(2));
 
     return { subtotal, taxAmount, total };

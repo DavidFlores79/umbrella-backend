@@ -41,7 +41,7 @@ export class CreatePurchaseLineItemDto {
 
   @ApiProperty({
     description: 'Unit cost',
-    example: 5.50,
+    example: 5.5,
     minimum: 0,
   })
   @IsNumber({ maxDecimalPlaces: 2 })
@@ -93,7 +93,7 @@ export class PurchaseLineItemDto {
 
   @ApiProperty({
     description: 'Unit cost',
-    example: 5.50,
+    example: 5.5,
   })
   unitCost: number;
 
@@ -105,19 +105,19 @@ export class PurchaseLineItemDto {
 
   @ApiProperty({
     description: 'Tax amount',
-    example: 88.00,
+    example: 88.0,
   })
   taxAmount: number;
 
   @ApiProperty({
     description: 'Subtotal (quantity x unitCost)',
-    example: 550.00,
+    example: 550.0,
   })
   subtotal: number;
 
   @ApiProperty({
     description: 'Total (subtotal + taxAmount)',
-    example: 638.00,
+    example: 638.0,
   })
   total: number;
 

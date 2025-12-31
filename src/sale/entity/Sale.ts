@@ -18,7 +18,9 @@ import { SaleLineItem } from './SaleLineItem';
 import { SaleStatus } from '../enum/SaleStatus';
 
 @Entity({ name: 'sales' })
-@Index('idx_sale_company_invoice', ['companyId', 'invoiceNumber'], { unique: true })
+@Index('idx_sale_company_invoice', ['companyId', 'invoiceNumber'], {
+  unique: true,
+})
 export class Sale {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -57,7 +59,13 @@ export class Sale {
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
   subtotal: number;
 
-  @Column({ name: 'tax_amount', type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @Column({
+    name: 'tax_amount',
+    type: 'decimal',
+    precision: 12,
+    scale: 2,
+    default: 0,
+  })
   taxAmount: number;
 
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })

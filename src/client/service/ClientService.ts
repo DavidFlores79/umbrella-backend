@@ -30,7 +30,9 @@ export class ClientService {
     companyId: string,
     payload: CreateClientPayloadDto,
   ): Promise<Client> {
-    this.logger.log(`Creating client: ${payload.name} for company: ${companyId}`);
+    this.logger.log(
+      `Creating client: ${payload.name} for company: ${companyId}`,
+    );
 
     if (payload.email) {
       await this.validateUniqueEmail(companyId, payload.email);
@@ -123,7 +125,7 @@ export class ClientService {
         );
       }
 
-      const row = result.raw[0];
+      const row = (result.raw as Record<string, unknown>[])[0];
       return this.mapRowToEntity(row);
     });
   }
@@ -184,23 +186,23 @@ export class ClientService {
     }
   }
 
-  private mapRowToEntity(row: any): Client {
+  private mapRowToEntity(row: Record<string, unknown>): Client {
     const entity = new Client();
-    entity.id = row.id;
-    entity.companyId = row.company_id;
-    entity.name = row.name;
-    entity.email = row.email;
-    entity.phone = row.phone;
-    entity.address = row.address;
-    entity.city = row.city;
-    entity.state = row.state;
-    entity.country = row.country;
-    entity.postalCode = row.postal_code;
-    entity.taxId = row.tax_id;
-    entity.notes = row.notes;
-    entity.isActive = row.is_active;
-    entity.createdAt = row.created_at;
-    entity.updatedAt = row.updated_at;
+    entity.id = row.id as string;
+    entity.companyId = row.company_id as string;
+    entity.name = row.name as string;
+    entity.email = row.email as string | null;
+    entity.phone = row.phone as string | null;
+    entity.address = row.address as string | null;
+    entity.city = row.city as string | null;
+    entity.state = row.state as string | null;
+    entity.country = row.country as string | null;
+    entity.postalCode = row.postal_code as string | null;
+    entity.taxId = row.tax_id as string | null;
+    entity.notes = row.notes as string | null;
+    entity.isActive = row.is_active as boolean;
+    entity.createdAt = row.created_at as Date;
+    entity.updatedAt = row.updated_at as Date;
     return entity;
   }
 }

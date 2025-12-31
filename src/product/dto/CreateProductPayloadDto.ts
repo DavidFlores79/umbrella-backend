@@ -79,7 +79,7 @@ export class CreateProductPayloadDto {
 
   @ApiPropertyOptional({
     description: 'Cost price',
-    example: 15.00,
+    example: 15.0,
     minimum: 0,
     default: 0,
   })

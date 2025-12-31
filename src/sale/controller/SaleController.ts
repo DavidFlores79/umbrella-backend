@@ -30,7 +30,10 @@ import {
 import { SaleService } from '../service/SaleService';
 import { SaleDto } from '../dto/SaleDto';
 import { CreateSalePayloadDto } from '../dto/CreateSalePayloadDto';
-import { UpdateSalePayloadDto, UpdateSaleStatusDto } from '../dto/UpdateSalePayloadDto';
+import {
+  UpdateSalePayloadDto,
+  UpdateSaleStatusDto,
+} from '../dto/UpdateSalePayloadDto';
 import { FilterSalesQueryDto } from '../dto/FilterSalesQueryDto';
 import { PaginationResultDto } from '../../shared/dto/PaginationResultDto';
 import { ApiPaginationResponse } from '../../shared/decorator/ApiPaginationResult';
@@ -55,7 +58,8 @@ export class SaleController {
   @ApiOperation({
     operationId: 'findAllSales',
     summary: 'Find all sales',
-    description: 'Find all sales for the current company with pagination and filtering',
+    description:
+      'Find all sales for the current company with pagination and filtering',
   })
   @ApiPaginationResponse(SaleDto)
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })

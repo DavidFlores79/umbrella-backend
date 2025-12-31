@@ -52,7 +52,7 @@ export class UpdatePurchasePayloadDto {
 
   @ApiPropertyOptional({
     description: 'Discount amount',
-    example: 50.00,
+    example: 50.0,
     minimum: 0,
   })
   @IsOptional()

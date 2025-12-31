@@ -61,7 +61,13 @@ export class Product {
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
   cost: number;
 
-  @Column({ name: 'tax_rate', type: 'decimal', precision: 5, scale: 2, default: 0 })
+  @Column({
+    name: 'tax_rate',
+    type: 'decimal',
+    precision: 5,
+    scale: 2,
+    default: 0,
+  })
   taxRate: number;
 
   @Column({ type: 'varchar', length: 20, nullable: true })

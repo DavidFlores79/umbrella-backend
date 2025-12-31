@@ -2,7 +2,15 @@
 // ABOUTME: Supports filtering by name, sku, type, category, and active status.
 
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsEnum, IsInt, Min, Max, IsBoolean } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsEnum,
+  IsInt,
+  Min,
+  Max,
+  IsBoolean,
+} from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 import { ProductType, ProductCategory } from '../enum/ProductType';
 

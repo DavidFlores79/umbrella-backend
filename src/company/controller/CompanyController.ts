@@ -58,7 +58,8 @@ export class CompanyController {
   @ApiOperation({
     operationId: 'findAllCompanies',
     summary: 'Find all companies',
-    description: 'Find all companies with pagination and filtering (admin only)',
+    description:
+      'Find all companies with pagination and filtering (admin only)',
   })
   @ApiPaginationResponse(CompanyDto)
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
@@ -68,7 +69,9 @@ export class CompanyController {
     const response = await this.companyService.findAll(query);
 
     const pagination = new PaginationResultDto<CompanyDto>();
-    pagination.docs = response.docs.map((company) => CompanyDto.buildDto(company));
+    pagination.docs = response.docs.map((company) =>
+      CompanyDto.buildDto(company),
+    );
     pagination.total = response.total;
     pagination.page = response.page;
     pagination.pages = response.pages;
@@ -113,7 +116,9 @@ export class CompanyController {
     type: CompanyDto,
   })
   @ApiBadRequestResponse({ description: 'Bad request' })
-  @ApiConflictResponse({ description: 'Company with this email already exists' })
+  @ApiConflictResponse({
+    description: 'Company with this email already exists',
+  })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async create(@Body() payload: CreateCompanyPayloadDto): Promise<CompanyDto> {
     const company = await this.companyService.create(payload);
@@ -135,7 +140,9 @@ export class CompanyController {
   })
   @ApiBadRequestResponse({ description: 'Bad request' })
   @ApiNotFoundResponse({ description: 'Company not found' })
-  @ApiConflictResponse({ description: 'Company with this email already exists' })
+  @ApiConflictResponse({
+    description: 'Company with this email already exists',
+  })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async updateById(
     @Param('id', ParseUUIDPipe) id: string,

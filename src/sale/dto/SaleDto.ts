@@ -52,25 +52,25 @@ export class SaleDto {
 
   @ApiProperty({
     description: 'Subtotal before tax and discount',
-    example: 100.00,
+    example: 100.0,
   })
   subtotal: number;
 
   @ApiProperty({
     description: 'Tax amount',
-    example: 16.00,
+    example: 16.0,
   })
   taxAmount: number;
 
   @ApiProperty({
     description: 'Discount amount',
-    example: 10.00,
+    example: 10.0,
   })
   discount: number;
 
   @ApiProperty({
     description: 'Total amount',
-    example: 106.00,
+    example: 106.0,
   })
   total: number;
 
@@ -112,7 +112,8 @@ export class SaleDto {
     dto.discount = Number(entity.discount);
     dto.total = Number(entity.total);
     dto.notes = entity.notes;
-    dto.lineItems = entity.lineItems?.map((item) => SaleLineItemDto.buildDto(item)) || [];
+    dto.lineItems =
+      entity.lineItems?.map((item) => SaleLineItemDto.buildDto(item)) || [];
     dto.createdAt = entity.createdAt;
     dto.updatedAt = entity.updatedAt;
     return dto;

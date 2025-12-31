@@ -21,7 +21,9 @@ export class PurchaseLineItem {
   @Index('idx_purchase_line_item_purchase_id')
   purchaseId: string;
 
-  @ManyToOne(() => Purchase, (purchase) => purchase.lineItems, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Purchase, (purchase) => purchase.lineItems, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'purchase_id' })
   purchase: Purchase;
 
@@ -39,13 +41,31 @@ export class PurchaseLineItem {
   @Column({ type: 'decimal', precision: 12, scale: 4, default: 1 })
   quantity: number;
 
-  @Column({ name: 'unit_cost', type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @Column({
+    name: 'unit_cost',
+    type: 'decimal',
+    precision: 12,
+    scale: 2,
+    default: 0,
+  })
   unitCost: number;
 
-  @Column({ name: 'tax_rate', type: 'decimal', precision: 5, scale: 2, default: 0 })
+  @Column({
+    name: 'tax_rate',
+    type: 'decimal',
+    precision: 5,
+    scale: 2,
+    default: 0,
+  })
   taxRate: number;
 
-  @Column({ name: 'tax_amount', type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @Column({
+    name: 'tax_amount',
+    type: 'decimal',
+    precision: 12,
+    scale: 2,
+    default: 0,
+  })
   taxAmount: number;
 
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
@@ -54,6 +74,12 @@ export class PurchaseLineItem {
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
   total: number;
 
-  @Column({ name: 'quantity_received', type: 'decimal', precision: 12, scale: 4, default: 0 })
+  @Column({
+    name: 'quantity_received',
+    type: 'decimal',
+    precision: 12,
+    scale: 4,
+    default: 0,
+  })
   quantityReceived: number;
 }

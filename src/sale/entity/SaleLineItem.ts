@@ -39,13 +39,31 @@ export class SaleLineItem {
   @Column({ type: 'decimal', precision: 12, scale: 4, default: 1 })
   quantity: number;
 
-  @Column({ name: 'unit_price', type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @Column({
+    name: 'unit_price',
+    type: 'decimal',
+    precision: 12,
+    scale: 2,
+    default: 0,
+  })
   unitPrice: number;
 
-  @Column({ name: 'tax_rate', type: 'decimal', precision: 5, scale: 2, default: 0 })
+  @Column({
+    name: 'tax_rate',
+    type: 'decimal',
+    precision: 5,
+    scale: 2,
+    default: 0,
+  })
   taxRate: number;
 
-  @Column({ name: 'tax_amount', type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @Column({
+    name: 'tax_amount',
+    type: 'decimal',
+    precision: 12,
+    scale: 2,
+    default: 0,
+  })
   taxAmount: number;
 
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })

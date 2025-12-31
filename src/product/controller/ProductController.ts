@@ -56,7 +56,8 @@ export class ProductController {
   @ApiOperation({
     operationId: 'findAllProducts',
     summary: 'Find all products',
-    description: 'Find all products for the current company with pagination and filtering',
+    description:
+      'Find all products for the current company with pagination and filtering',
   })
   @ApiPaginationResponse(ProductDto)
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
@@ -67,7 +68,9 @@ export class ProductController {
     const response = await this.productService.findAll(companyId, query);
 
     const pagination = new PaginationResultDto<ProductDto>();
-    pagination.docs = response.docs.map((product) => ProductDto.buildDto(product));
+    pagination.docs = response.docs.map((product) =>
+      ProductDto.buildDto(product),
+    );
     pagination.total = response.total;
     pagination.page = response.page;
     pagination.pages = response.pages;
@@ -146,7 +149,11 @@ export class ProductController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() payload: UpdateProductPayloadDto,
   ): Promise<ProductDto> {
-    const product = await this.productService.updateById(companyId, id, payload);
+    const product = await this.productService.updateById(
+      companyId,
+      id,
+      payload,
+    );
     return ProductDto.buildDto(product);
   }
 

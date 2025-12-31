@@ -56,7 +56,10 @@ export class Company {
   @Column({ type: 'varchar', length: 500, nullable: true })
   logo: string | null;
 
-  @Column({ type: 'jsonb', default: () => `'${JSON.stringify(DEFAULT_COMPANY_SETTINGS)}'::jsonb` })
+  @Column({
+    type: 'jsonb',
+    default: () => `'${JSON.stringify(DEFAULT_COMPANY_SETTINGS)}'::jsonb`,
+  })
   settings: CompanySettings;
 
   @Column({ type: 'varchar', length: 20, default: 'active' })

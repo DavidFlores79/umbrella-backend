@@ -2,7 +2,14 @@
 // ABOUTME: Supports filtering by name, email, and active status.
 
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsInt, Min, Max, IsBoolean } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsInt,
+  Min,
+  Max,
+  IsBoolean,
+} from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 
 export class FilterVendorsQueryDto {
