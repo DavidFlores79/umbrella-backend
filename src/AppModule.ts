@@ -9,6 +9,12 @@ import { CoreModule } from './core/CoreModule.js';
 import { DatabaseModule } from './database/DatabaseModule';
 import { AuthModule } from './auth/AuthModule';
 import { UserModule } from './users/UserModule';
+import { CompanyModule } from './company/CompanyModule';
+import { ProductModule } from './product/ProductModule';
+import { ClientModule } from './client/ClientModule';
+import { VendorModule } from './vendor/VendorModule';
+import { SaleModule } from './sale/SaleModule';
+import { PurchaseModule } from './purchase/PurchaseModule';
 
 @Module({
   imports: [
@@ -24,6 +30,12 @@ import { UserModule } from './users/UserModule';
     CoreModule,
     UserModule,
     AuthModule,
+    CompanyModule,
+    ProductModule,
+    ClientModule,
+    VendorModule,
+    SaleModule,
+    PurchaseModule,
   ],
   providers: [
     {

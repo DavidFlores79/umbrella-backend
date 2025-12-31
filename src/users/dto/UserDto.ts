@@ -87,6 +87,47 @@ export class UserDto {
   @IsEnum(Group)
   group: Group;
 
+  @ApiProperty({
+    type: String,
+    format: 'uuid',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  companyId?: string | null;
+
+  @ApiProperty({
+    type: String,
+    example: 'admin',
+    enum: ['admin', 'manager', 'user'],
+  })
+  @IsString()
+  role: string;
+
+  @ApiProperty({
+    type: [String],
+    example: ['users:read', 'users:write'],
+  })
+  permissions: string[];
+
+  @ApiProperty({
+    type: String,
+    required: false,
+    example: 'https://example.com/avatar.png',
+  })
+  @IsOptional()
+  @IsString()
+  avatar?: string | null;
+
+  @ApiProperty({
+    type: Date,
+    required: false,
+    example: '2024-01-15T10:30:00.000Z',
+  })
+  @IsOptional()
+  lastLogin?: Date | null;
+
   @ApiProperty({ type: String, required: false })
   @IsOptional()
   @Matches(
@@ -174,6 +215,11 @@ export class UserDto {
     dto.group = user.group as Group;
     dto.profileCompleted = user.profileCompleted;
     dto.verified = user.verified;
+    dto.companyId = user.companyId;
+    dto.role = user.role;
+    dto.permissions = user.permissions || [];
+    dto.avatar = user.avatar;
+    dto.lastLogin = user.lastLogin;
 
     return dto;
   }
