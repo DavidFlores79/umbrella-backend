@@ -13,9 +13,6 @@ import { PaginationResultDto } from '../../shared/dto/PaginationResultDto';
 import { CreatePurchasePayloadDto } from '../dto/CreatePurchasePayloadDto';
 import { UpdatePurchasePayloadDto, UpdatePurchaseStatusDto } from '../dto/UpdatePurchasePayloadDto';
 import { PurchaseStatus } from '../enum/PurchaseStatus';
-import { JwtAuthGuard } from '../../shared/guard/JwtAuthGuard';
-import { CompanyContextGuard } from '../../shared/guard/CompanyContextGuard';
-import { PermissionsGuard } from '../../shared/guard/PermissionsGuard';
 
 describe('PurchaseController', () => {
   let controller: PurchaseController;
@@ -28,8 +25,6 @@ describe('PurchaseController', () => {
     updateStatus: jest.fn(),
     remove: jest.fn(),
   };
-
-  const mockGuard = { canActivate: jest.fn().mockReturnValue(true) };
 
   const companyId = randomUUID();
   const vendorId = randomUUID();
@@ -76,14 +71,7 @@ describe('PurchaseController', () => {
           useValue: mockPurchaseService,
         },
       ],
-    })
-      .overrideGuard(JwtAuthGuard)
-      .useValue(mockGuard)
-      .overrideGuard(CompanyContextGuard)
-      .useValue(mockGuard)
-      .overrideGuard(PermissionsGuard)
-      .useValue(mockGuard)
-      .compile();
+    }).compile();
 
     controller = module.get<PurchaseController>(PurchaseController);
   });

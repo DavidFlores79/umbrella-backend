@@ -12,9 +12,6 @@ import { PaginationResultDto } from '../../shared/dto/PaginationResultDto';
 import { CreateCompanyPayloadDto } from '../dto/CreateCompanyPayloadDto';
 import { UpdateCompanyPayloadDto } from '../dto/UpdateCompanyPayloadDto';
 import { DEFAULT_COMPANY_SETTINGS } from '../interface/CompanySettings';
-import { JwtAuthGuard } from '../../shared/guard/JwtAuthGuard';
-import { RolesGuard } from '../../shared/guard/RolesGuard';
-import { PermissionsGuard } from '../../shared/guard/PermissionsGuard';
 
 describe('CompanyController', () => {
   let controller: CompanyController;
@@ -26,8 +23,6 @@ describe('CompanyController', () => {
     updateById: jest.fn(),
     remove: jest.fn(),
   };
-
-  const mockGuard = { canActivate: jest.fn().mockReturnValue(true) };
 
   const fakeCompany: Company = {
     id: randomUUID(),
@@ -58,14 +53,7 @@ describe('CompanyController', () => {
           useValue: mockCompanyService,
         },
       ],
-    })
-      .overrideGuard(JwtAuthGuard)
-      .useValue(mockGuard)
-      .overrideGuard(RolesGuard)
-      .useValue(mockGuard)
-      .overrideGuard(PermissionsGuard)
-      .useValue(mockGuard)
-      .compile();
+    }).compile();
 
     controller = module.get<CompanyController>(CompanyController);
   });

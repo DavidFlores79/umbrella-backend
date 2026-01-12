@@ -14,11 +14,9 @@ import {
   HttpStatus,
   Query,
   ParseUUIDPipe,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
-  ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiNoContentResponse,
@@ -26,7 +24,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { ProductService } from '../service/ProductService';
 import { ProductDto } from '../dto/ProductDto';
@@ -35,23 +32,15 @@ import { UpdateProductPayloadDto } from '../dto/UpdateProductPayloadDto';
 import { FilterProductsQueryDto } from '../dto/FilterProductsQueryDto';
 import { PaginationResultDto } from '../../shared/dto/PaginationResultDto';
 import { ApiPaginationResponse } from '../../shared/decorator/ApiPaginationResult';
-import { JwtAuthGuard } from '../../shared/guard/JwtAuthGuard';
-import { CompanyContextGuard } from '../../shared/guard/CompanyContextGuard';
-import { PermissionsGuard } from '../../shared/guard/PermissionsGuard';
 import { CompanyContext } from '../../shared/decorator/CompanyContext';
-import { Permissions } from '../../shared/decorator/Permissions';
-import { Permission } from '../../shared/enum/Permission';
 
 @Controller('products')
 @ApiTags('Products')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard, CompanyContextGuard, PermissionsGuard)
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Get()
   @Version('1')
-  @Permissions(Permission.PRODUCTS_READ)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     operationId: 'findAllProducts',
@@ -60,7 +49,6 @@ export class ProductController {
       'Find all products for the current company with pagination and filtering',
   })
   @ApiPaginationResponse(ProductDto)
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async findAll(
     @CompanyContext() companyId: string,
     @Query() query: FilterProductsQueryDto,
@@ -81,7 +69,6 @@ export class ProductController {
 
   @Get(':id')
   @Version('1')
-  @Permissions(Permission.PRODUCTS_READ)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     operationId: 'findProductById',
@@ -94,7 +81,6 @@ export class ProductController {
   })
   @ApiNotFoundResponse({ description: 'Product not found' })
   @ApiBadRequestResponse({ description: 'Bad request' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async getById(
     @CompanyContext() companyId: string,
     @Param('id', ParseUUIDPipe) id: string,
@@ -105,7 +91,6 @@ export class ProductController {
 
   @Post()
   @Version('1')
-  @Permissions(Permission.PRODUCTS_WRITE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     operationId: 'createProduct',
@@ -118,7 +103,6 @@ export class ProductController {
   })
   @ApiBadRequestResponse({ description: 'Bad request' })
   @ApiConflictResponse({ description: 'Product with this SKU already exists' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async create(
     @CompanyContext() companyId: string,
     @Body() payload: CreateProductPayloadDto,
@@ -129,7 +113,6 @@ export class ProductController {
 
   @Patch(':id')
   @Version('1')
-  @Permissions(Permission.PRODUCTS_WRITE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     operationId: 'updateProductById',
@@ -143,7 +126,6 @@ export class ProductController {
   @ApiBadRequestResponse({ description: 'Bad request' })
   @ApiNotFoundResponse({ description: 'Product not found' })
   @ApiConflictResponse({ description: 'Product with this SKU already exists' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async updateById(
     @CompanyContext() companyId: string,
     @Param('id', ParseUUIDPipe) id: string,
@@ -159,7 +141,6 @@ export class ProductController {
 
   @Delete(':id')
   @Version('1')
-  @Permissions(Permission.PRODUCTS_DELETE)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     operationId: 'deleteProductById',
@@ -168,7 +149,6 @@ export class ProductController {
   })
   @ApiNoContentResponse({ description: 'Product deleted successfully' })
   @ApiNotFoundResponse({ description: 'Product not found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async deleteById(
     @CompanyContext() companyId: string,
     @Param('id', ParseUUIDPipe) id: string,

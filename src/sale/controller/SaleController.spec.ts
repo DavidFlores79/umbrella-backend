@@ -13,9 +13,6 @@ import { PaginationResultDto } from '../../shared/dto/PaginationResultDto';
 import { CreateSalePayloadDto } from '../dto/CreateSalePayloadDto';
 import { UpdateSalePayloadDto, UpdateSaleStatusDto } from '../dto/UpdateSalePayloadDto';
 import { SaleStatus } from '../enum/SaleStatus';
-import { JwtAuthGuard } from '../../shared/guard/JwtAuthGuard';
-import { CompanyContextGuard } from '../../shared/guard/CompanyContextGuard';
-import { PermissionsGuard } from '../../shared/guard/PermissionsGuard';
 
 describe('SaleController', () => {
   let controller: SaleController;
@@ -28,8 +25,6 @@ describe('SaleController', () => {
     updateStatus: jest.fn(),
     remove: jest.fn(),
   };
-
-  const mockGuard = { canActivate: jest.fn().mockReturnValue(true) };
 
   const companyId = randomUUID();
   const clientId = randomUUID();
@@ -74,14 +69,7 @@ describe('SaleController', () => {
           useValue: mockSaleService,
         },
       ],
-    })
-      .overrideGuard(JwtAuthGuard)
-      .useValue(mockGuard)
-      .overrideGuard(CompanyContextGuard)
-      .useValue(mockGuard)
-      .overrideGuard(PermissionsGuard)
-      .useValue(mockGuard)
-      .compile();
+    }).compile();
 
     controller = module.get<SaleController>(SaleController);
   });

@@ -14,11 +14,9 @@ import {
   HttpStatus,
   Query,
   ParseUUIDPipe,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
-  ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiNoContentResponse,
@@ -26,7 +24,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { CompanyService } from '../service/CompanyService';
 import { CompanyDto } from '../dto/CompanyDto';
@@ -35,25 +32,14 @@ import { UpdateCompanyPayloadDto } from '../dto/UpdateCompanyPayloadDto';
 import { FilterCompaniesQueryDto } from '../dto/FilterCompaniesQueryDto';
 import { PaginationResultDto } from '../../shared/dto/PaginationResultDto';
 import { ApiPaginationResponse } from '../../shared/decorator/ApiPaginationResult';
-import { JwtAuthGuard } from '../../shared/guard/JwtAuthGuard';
-import { RolesGuard } from '../../shared/guard/RolesGuard';
-import { PermissionsGuard } from '../../shared/guard/PermissionsGuard';
-import { Roles } from '../../shared/decorator/Roles';
-import { Permissions } from '../../shared/decorator/Permissions';
-import { Role } from '../../shared/enum/Role';
-import { Permission } from '../../shared/enum/Permission';
 
 @Controller('companies')
 @ApiTags('Companies')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
 export class CompanyController {
   constructor(private readonly companyService: CompanyService) {}
 
   @Get()
   @Version('1')
-  @Roles(Role.ADMIN)
-  @Permissions(Permission.COMPANIES_READ)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     operationId: 'findAllCompanies',
@@ -62,7 +48,6 @@ export class CompanyController {
       'Find all companies with pagination and filtering (admin only)',
   })
   @ApiPaginationResponse(CompanyDto)
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async findAll(
     @Query() query: FilterCompaniesQueryDto,
   ): Promise<PaginationResultDto<CompanyDto>> {
@@ -82,7 +67,6 @@ export class CompanyController {
 
   @Get(':id')
   @Version('1')
-  @Permissions(Permission.COMPANIES_READ)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     operationId: 'findCompanyById',
@@ -95,7 +79,6 @@ export class CompanyController {
   })
   @ApiNotFoundResponse({ description: 'Company not found' })
   @ApiBadRequestResponse({ description: 'Bad request' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async getById(@Param('id', ParseUUIDPipe) id: string): Promise<CompanyDto> {
     const company = await this.companyService.findById(id);
     return CompanyDto.buildDto(company);
@@ -103,8 +86,6 @@ export class CompanyController {
 
   @Post()
   @Version('1')
-  @Roles(Role.ADMIN)
-  @Permissions(Permission.COMPANIES_WRITE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     operationId: 'createCompany',
@@ -119,7 +100,6 @@ export class CompanyController {
   @ApiConflictResponse({
     description: 'Company with this email already exists',
   })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async create(@Body() payload: CreateCompanyPayloadDto): Promise<CompanyDto> {
     const company = await this.companyService.create(payload);
     return CompanyDto.buildDto(company);
@@ -127,7 +107,6 @@ export class CompanyController {
 
   @Patch(':id')
   @Version('1')
-  @Permissions(Permission.COMPANIES_WRITE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     operationId: 'updateCompanyById',
@@ -143,7 +122,6 @@ export class CompanyController {
   @ApiConflictResponse({
     description: 'Company with this email already exists',
   })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async updateById(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() payload: UpdateCompanyPayloadDto,
@@ -154,8 +132,6 @@ export class CompanyController {
 
   @Delete(':id')
   @Version('1')
-  @Roles(Role.ADMIN)
-  @Permissions(Permission.COMPANIES_DELETE)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     operationId: 'deleteCompanyById',
@@ -164,7 +140,6 @@ export class CompanyController {
   })
   @ApiNoContentResponse({ description: 'Company deleted successfully' })
   @ApiNotFoundResponse({ description: 'Company not found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async deleteById(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     await this.companyService.remove(id);
   }

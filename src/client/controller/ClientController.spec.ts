@@ -11,9 +11,6 @@ import { ClientDto } from '../dto/ClientDto';
 import { PaginationResultDto } from '../../shared/dto/PaginationResultDto';
 import { CreateClientPayloadDto } from '../dto/CreateClientPayloadDto';
 import { UpdateClientPayloadDto } from '../dto/UpdateClientPayloadDto';
-import { JwtAuthGuard } from '../../shared/guard/JwtAuthGuard';
-import { CompanyContextGuard } from '../../shared/guard/CompanyContextGuard';
-import { PermissionsGuard } from '../../shared/guard/PermissionsGuard';
 
 describe('ClientController', () => {
   let controller: ClientController;
@@ -25,8 +22,6 @@ describe('ClientController', () => {
     updateById: jest.fn(),
     remove: jest.fn(),
   };
-
-  const mockGuard = { canActivate: jest.fn().mockReturnValue(true) };
 
   const companyId = randomUUID();
 
@@ -57,14 +52,7 @@ describe('ClientController', () => {
           useValue: mockClientService,
         },
       ],
-    })
-      .overrideGuard(JwtAuthGuard)
-      .useValue(mockGuard)
-      .overrideGuard(CompanyContextGuard)
-      .useValue(mockGuard)
-      .overrideGuard(PermissionsGuard)
-      .useValue(mockGuard)
-      .compile();
+    }).compile();
 
     controller = module.get<ClientController>(ClientController);
   });

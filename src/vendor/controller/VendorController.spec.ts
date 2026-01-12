@@ -11,9 +11,6 @@ import { VendorDto } from '../dto/VendorDto';
 import { PaginationResultDto } from '../../shared/dto/PaginationResultDto';
 import { CreateVendorPayloadDto } from '../dto/CreateVendorPayloadDto';
 import { UpdateVendorPayloadDto } from '../dto/UpdateVendorPayloadDto';
-import { JwtAuthGuard } from '../../shared/guard/JwtAuthGuard';
-import { CompanyContextGuard } from '../../shared/guard/CompanyContextGuard';
-import { PermissionsGuard } from '../../shared/guard/PermissionsGuard';
 
 describe('VendorController', () => {
   let controller: VendorController;
@@ -25,8 +22,6 @@ describe('VendorController', () => {
     updateById: jest.fn(),
     remove: jest.fn(),
   };
-
-  const mockGuard = { canActivate: jest.fn().mockReturnValue(true) };
 
   const companyId = randomUUID();
 
@@ -58,14 +53,7 @@ describe('VendorController', () => {
           useValue: mockVendorService,
         },
       ],
-    })
-      .overrideGuard(JwtAuthGuard)
-      .useValue(mockGuard)
-      .overrideGuard(CompanyContextGuard)
-      .useValue(mockGuard)
-      .overrideGuard(PermissionsGuard)
-      .useValue(mockGuard)
-      .compile();
+    }).compile();
 
     controller = module.get<VendorController>(VendorController);
   });

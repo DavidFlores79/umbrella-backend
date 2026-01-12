@@ -14,18 +14,15 @@ import {
   HttpStatus,
   Query,
   ParseUUIDPipe,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
-  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { PurchaseService } from '../service/PurchaseService';
 import { PurchaseDto } from '../dto/PurchaseDto';
@@ -37,23 +34,15 @@ import {
 import { FilterPurchasesQueryDto } from '../dto/FilterPurchasesQueryDto';
 import { PaginationResultDto } from '../../shared/dto/PaginationResultDto';
 import { ApiPaginationResponse } from '../../shared/decorator/ApiPaginationResult';
-import { JwtAuthGuard } from '../../shared/guard/JwtAuthGuard';
-import { CompanyContextGuard } from '../../shared/guard/CompanyContextGuard';
-import { PermissionsGuard } from '../../shared/guard/PermissionsGuard';
 import { CompanyContext } from '../../shared/decorator/CompanyContext';
-import { Permissions } from '../../shared/decorator/Permissions';
-import { Permission } from '../../shared/enum/Permission';
 
 @Controller('purchases')
 @ApiTags('Purchases')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard, CompanyContextGuard, PermissionsGuard)
 export class PurchaseController {
   constructor(private readonly purchaseService: PurchaseService) {}
 
   @Get()
   @Version('1')
-  @Permissions(Permission.PURCHASES_READ)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     operationId: 'findAllPurchases',
@@ -62,7 +51,6 @@ export class PurchaseController {
       'Find all purchases for the current company with pagination and filtering',
   })
   @ApiPaginationResponse(PurchaseDto)
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async findAll(
     @CompanyContext() companyId: string,
     @Query() query: FilterPurchasesQueryDto,
@@ -83,7 +71,6 @@ export class PurchaseController {
 
   @Get(':id')
   @Version('1')
-  @Permissions(Permission.PURCHASES_READ)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     operationId: 'findPurchaseById',
@@ -96,7 +83,6 @@ export class PurchaseController {
   })
   @ApiNotFoundResponse({ description: 'Purchase not found' })
   @ApiBadRequestResponse({ description: 'Bad request' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async getById(
     @CompanyContext() companyId: string,
     @Param('id', ParseUUIDPipe) id: string,
@@ -107,7 +93,6 @@ export class PurchaseController {
 
   @Post()
   @Version('1')
-  @Permissions(Permission.PURCHASES_WRITE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     operationId: 'createPurchase',
@@ -120,7 +105,6 @@ export class PurchaseController {
     type: PurchaseDto,
   })
   @ApiBadRequestResponse({ description: 'Bad request' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async create(
     @CompanyContext() companyId: string,
     @Body() payload: CreatePurchasePayloadDto,
@@ -131,7 +115,6 @@ export class PurchaseController {
 
   @Patch(':id')
   @Version('1')
-  @Permissions(Permission.PURCHASES_WRITE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     operationId: 'updatePurchaseById',
@@ -144,7 +127,6 @@ export class PurchaseController {
   })
   @ApiBadRequestResponse({ description: 'Bad request' })
   @ApiNotFoundResponse({ description: 'Purchase not found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async updateById(
     @CompanyContext() companyId: string,
     @Param('id', ParseUUIDPipe) id: string,
@@ -160,7 +142,6 @@ export class PurchaseController {
 
   @Patch(':id/status')
   @Version('1')
-  @Permissions(Permission.PURCHASES_WRITE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     operationId: 'updatePurchaseStatus',
@@ -173,7 +154,6 @@ export class PurchaseController {
   })
   @ApiBadRequestResponse({ description: 'Bad request' })
   @ApiNotFoundResponse({ description: 'Purchase not found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async updateStatus(
     @CompanyContext() companyId: string,
     @Param('id', ParseUUIDPipe) id: string,
@@ -189,7 +169,6 @@ export class PurchaseController {
 
   @Delete(':id')
   @Version('1')
-  @Permissions(Permission.PURCHASES_DELETE)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     operationId: 'deletePurchaseById',
@@ -198,7 +177,6 @@ export class PurchaseController {
   })
   @ApiNoContentResponse({ description: 'Purchase deleted successfully' })
   @ApiNotFoundResponse({ description: 'Purchase not found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async deleteById(
     @CompanyContext() companyId: string,
     @Param('id', ParseUUIDPipe) id: string,

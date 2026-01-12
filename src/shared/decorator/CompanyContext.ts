@@ -1,12 +1,21 @@
-// ABOUTME: Custom decorator to extract companyId from the request context.
-// ABOUTME: Used in controllers to get the current user's company ID for multi-tenant data filtering.
+// ABOUTME: Custom decorator to extract companyId from the X-Company-Id header.
+// ABOUTME: Used in controllers to get the company ID for multi-tenant data filtering from BFF.
 
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { AuthenticatedRequest } from '../interface/AuthenticatedRequest';
+import {
+  createParamDecorator,
+  ExecutionContext,
+  BadRequestException,
+} from '@nestjs/common';
 
 export const CompanyContext = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): string => {
-    const request = ctx.switchToHttp().getRequest<AuthenticatedRequest>();
-    return request.companyId ?? '';
+    const request = ctx.switchToHttp().getRequest();
+    const companyId = request.headers['x-company-id'];
+
+    if (!companyId) {
+      throw new BadRequestException('X-Company-Id header is required');
+    }
+
+    return companyId;
   },
 );

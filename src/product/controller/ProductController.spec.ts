@@ -12,9 +12,6 @@ import { PaginationResultDto } from '../../shared/dto/PaginationResultDto';
 import { CreateProductPayloadDto } from '../dto/CreateProductPayloadDto';
 import { UpdateProductPayloadDto } from '../dto/UpdateProductPayloadDto';
 import { ProductType, ProductCategory } from '../enum/ProductType';
-import { JwtAuthGuard } from '../../shared/guard/JwtAuthGuard';
-import { CompanyContextGuard } from '../../shared/guard/CompanyContextGuard';
-import { PermissionsGuard } from '../../shared/guard/PermissionsGuard';
 
 describe('ProductController', () => {
   let controller: ProductController;
@@ -26,8 +23,6 @@ describe('ProductController', () => {
     updateById: jest.fn(),
     remove: jest.fn(),
   };
-
-  const mockGuard = { canActivate: jest.fn().mockReturnValue(true) };
 
   const companyId = randomUUID();
 
@@ -61,14 +56,7 @@ describe('ProductController', () => {
           useValue: mockProductService,
         },
       ],
-    })
-      .overrideGuard(JwtAuthGuard)
-      .useValue(mockGuard)
-      .overrideGuard(CompanyContextGuard)
-      .useValue(mockGuard)
-      .overrideGuard(PermissionsGuard)
-      .useValue(mockGuard)
-      .compile();
+    }).compile();
 
     controller = module.get<ProductController>(ProductController);
   });

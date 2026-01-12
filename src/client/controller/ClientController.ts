@@ -14,11 +14,9 @@ import {
   HttpStatus,
   Query,
   ParseUUIDPipe,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
-  ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiNoContentResponse,
@@ -26,7 +24,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { ClientService } from '../service/ClientService';
 import { ClientDto } from '../dto/ClientDto';
@@ -35,23 +32,15 @@ import { UpdateClientPayloadDto } from '../dto/UpdateClientPayloadDto';
 import { FilterClientsQueryDto } from '../dto/FilterClientsQueryDto';
 import { PaginationResultDto } from '../../shared/dto/PaginationResultDto';
 import { ApiPaginationResponse } from '../../shared/decorator/ApiPaginationResult';
-import { JwtAuthGuard } from '../../shared/guard/JwtAuthGuard';
-import { CompanyContextGuard } from '../../shared/guard/CompanyContextGuard';
-import { PermissionsGuard } from '../../shared/guard/PermissionsGuard';
 import { CompanyContext } from '../../shared/decorator/CompanyContext';
-import { Permissions } from '../../shared/decorator/Permissions';
-import { Permission } from '../../shared/enum/Permission';
 
 @Controller('clients')
 @ApiTags('Clients')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard, CompanyContextGuard, PermissionsGuard)
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
   @Get()
   @Version('1')
-  @Permissions(Permission.CLIENTS_READ)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     operationId: 'findAllClients',
@@ -60,7 +49,6 @@ export class ClientController {
       'Find all clients for the current company with pagination and filtering',
   })
   @ApiPaginationResponse(ClientDto)
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async findAll(
     @CompanyContext() companyId: string,
     @Query() query: FilterClientsQueryDto,
@@ -79,7 +67,6 @@ export class ClientController {
 
   @Get(':id')
   @Version('1')
-  @Permissions(Permission.CLIENTS_READ)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     operationId: 'findClientById',
@@ -92,7 +79,6 @@ export class ClientController {
   })
   @ApiNotFoundResponse({ description: 'Client not found' })
   @ApiBadRequestResponse({ description: 'Bad request' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async getById(
     @CompanyContext() companyId: string,
     @Param('id', ParseUUIDPipe) id: string,
@@ -103,7 +89,6 @@ export class ClientController {
 
   @Post()
   @Version('1')
-  @Permissions(Permission.CLIENTS_WRITE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     operationId: 'createClient',
@@ -116,7 +101,6 @@ export class ClientController {
   })
   @ApiBadRequestResponse({ description: 'Bad request' })
   @ApiConflictResponse({ description: 'Client with this email already exists' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async create(
     @CompanyContext() companyId: string,
     @Body() payload: CreateClientPayloadDto,
@@ -127,7 +111,6 @@ export class ClientController {
 
   @Patch(':id')
   @Version('1')
-  @Permissions(Permission.CLIENTS_WRITE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     operationId: 'updateClientById',
@@ -141,7 +124,6 @@ export class ClientController {
   @ApiBadRequestResponse({ description: 'Bad request' })
   @ApiNotFoundResponse({ description: 'Client not found' })
   @ApiConflictResponse({ description: 'Client with this email already exists' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async updateById(
     @CompanyContext() companyId: string,
     @Param('id', ParseUUIDPipe) id: string,
@@ -153,7 +135,6 @@ export class ClientController {
 
   @Delete(':id')
   @Version('1')
-  @Permissions(Permission.CLIENTS_DELETE)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     operationId: 'deleteClientById',
@@ -162,7 +143,6 @@ export class ClientController {
   })
   @ApiNoContentResponse({ description: 'Client deleted successfully' })
   @ApiNotFoundResponse({ description: 'Client not found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async deleteById(
     @CompanyContext() companyId: string,
     @Param('id', ParseUUIDPipe) id: string,

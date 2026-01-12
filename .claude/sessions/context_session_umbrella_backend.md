@@ -3,9 +3,43 @@
 ## Session Information
 - **Feature**: umbrella-backend
 - **Created**: 2025-12-31
-- **Status**: Implementation Complete (Core Modules)
+- **Status**: Implementation & Unit Tests Complete (Core Modules)
 - **Target Repository**: `/Users/LAPTOP-david-001/Development/apps/Nest/umbrella-backend`
 - **Branch**: `feat/umbrella-backend-api`
+
+---
+
+## Implementation Progress (2026-01-02)
+
+### Unit Tests Added
+
+| Module | Test File | Tests | Status |
+|--------|-----------|-------|--------|
+| **CompanyService** | `company/service/CompanyService.spec.ts` | CRUD, settings merge, unique email | ✅ Complete |
+| **CompanyController** | `company/controller/CompanyController.spec.ts` | Endpoints with guard overrides | ✅ Complete |
+| **ProductService** | `product/service/ProductService.spec.ts` | CRUD, SKU uniqueness, inventory | ✅ Complete |
+| **ProductController** | `product/controller/ProductController.spec.ts` | Endpoints with guard overrides | ✅ Complete |
+| **ClientService** | `client/service/ClientService.spec.ts` | CRUD, email validation | ✅ Complete |
+| **ClientController** | `client/controller/ClientController.spec.ts` | Endpoints with guard overrides | ✅ Complete |
+| **VendorService** | `vendor/service/VendorService.spec.ts` | CRUD, email validation | ✅ Complete |
+| **VendorController** | `vendor/controller/VendorController.spec.ts` | Endpoints with guard overrides | ✅ Complete |
+| **SaleService** | `sale/service/SaleService.spec.ts` | CRUD, line items, totals, status | ✅ Complete |
+| **SaleController** | `sale/controller/SaleController.spec.ts` | Endpoints with guard overrides | ✅ Complete |
+| **PurchaseService** | `purchase/service/PurchaseService.spec.ts` | CRUD, line items, totals, status | ✅ Complete |
+| **PurchaseController** | `purchase/controller/PurchaseController.spec.ts` | Endpoints with guard overrides | ✅ Complete |
+
+### Test Coverage Summary
+- **Statement Coverage**: 76.55%
+- **Branch Coverage**: 52.38%
+- **Function Coverage**: 62.14%
+- **Line Coverage**: 77.4%
+- **Total Tests**: 192 passing
+
+### Key Technical Details
+- Controller tests override guards (JwtAuthGuard, CompanyContextGuard, PermissionsGuard, RolesGuard) to avoid dependency resolution issues
+- Service tests mock repositories and DataSource transactions
+- Optimistic locking tested with `OutdatedEntityVersionError`
+- Multi-tenant isolation tested with `companyId` parameter
 
 ---
 
@@ -1062,5 +1096,447 @@ open http://localhost:3000/api
 
 ---
 
-*Last Updated: 2025-12-31*
-*Status: Plan Complete - Ready for Implementation*
+## 14. Wallet-Service Alignment Analysis (2026-01-02)
+
+### Context
+David requested architectural alignment analysis between umbrella-backend and wallet-service to identify patterns worth adopting while respecting different business requirements (multi-tenant business management vs financial services).
+
+### Key Findings
+
+**Wallet-Service Architecture Patterns**:
+1. RSA-based JWT (private/public key pair, base64-encoded)
+2. Global JwtModule in AppModule (not in AuthModule)
+3. GeolocationGuard for regulatory compliance (Mexico-only)
+4. S3Service for document storage in shared module
+5. No endpoint-level JWT guards (unauthenticated endpoints)
+6. libs/ folder for external integrations
+
+**Umbrella-Backend Current State**:
+1. Secret-based JWT (simple secret key)
+2. JwtModule in AuthModule
+3. Comprehensive guards (JwtAuth, CompanyContext, Roles, Permissions)
+4. AWS credentials configured, S3Service not implemented
+5. Multi-tenant column-based isolation with companyId
+6. Module-based structure (no libs/ folder)
+
+### Architectural Recommendations
+
+| Recommendation | Priority | Decision | Rationale |
+|----------------|----------|----------|-----------|
+| **RSA-Based JWT + Global Module** | **HIGH** | **ADOPT** | Security, scalability, industry best practice for multi-tenant systems |
+| **Keep Multi-Tenant Guards** | **CRITICAL** | **NO CHANGE** | Business requirement - different security model from wallet-service |
+| **GeolocationService** | **LOW** | **DEFER** | No current regulatory requirement for business management software |
+| **S3Service Integration** | **HIGH** | **ADOPT** | Required for installation photos, proven pattern, env vars already configured |
+| **libs/ Folder Structure** | **LOW** | **REJECT** | Not needed for single-app NestJS, follow NestJS module conventions |
+| **JWT Environment Variables** | **HIGH** | **UPDATE** | Part of RSA migration, align naming with wallet-service |
+
+### Implementation Roadmap
+
+**Phase 1: JWT RSA Migration** (Week 1)
+- Generate RSA key pairs for all environments
+- Move JwtModule to AppModule with RSA configuration
+- Update AuthModule (remove JwtModule)
+- Update JwtAuthGuard to use public key verification
+- Update AuthService token generation with RSA signing
+- Update EnvironmentVariables validation
+- Testing: Token generation, verification, multi-tenant claims
+
+**Phase 2: S3Service Integration** (Week 2)
+- Install AWS SDK (@aws-sdk/client-s3, @aws-sdk/s3-request-presigner)
+- Create S3Service in shared/service/
+- Create FileUploadModule with presigned URL endpoints
+- Implement upload/download workflow
+- Testing: Presigned URL generation, file upload flow
+
+**Phase 3: Installation Photos Module** (Week 3)
+- Create InstallationPhoto entity with S3 key field
+- Implement photo upload workflow using S3Service
+- Generate database migration
+- Testing: End-to-end photo upload/download
+
+### Critical Decisions
+
+1. **JWT Migration is Breaking Change**:
+   - All active sessions will be invalidated
+   - Requires user re-authentication
+   - Deploy during maintenance window
+   - Consider temporary dual-token support (accept old + new tokens during transition)
+
+2. **Multi-Tenant Guards MUST Stay**:
+   - Wallet-service has no JWT guards because it uses external API gateway authentication
+   - Umbrella-backend requires endpoint-level multi-tenant isolation
+   - JwtAuthGuard, CompanyContextGuard, RolesGuard, PermissionsGuard are critical for business logic
+
+3. **S3Service Direct Adoption**:
+   - Wallet-service implementation is production-tested
+   - Environment variables already configured in umbrella-backend
+   - Presigned URLs provide secure, scalable file upload
+
+### Documentation Created
+
+- **File**: `.claude/doc/umbrella_backend/wallet-service-alignment-analysis.md`
+- **Contents**:
+  - Detailed comparison of both architectures
+  - Step-by-step implementation guides for RSA JWT migration
+  - Complete S3Service implementation with code examples
+  - Testing strategy and migration risks
+  - Environment variable alignment
+
+### Next Steps
+
+1. Review alignment analysis with David
+2. Get approval for RSA JWT migration (breaking change)
+3. Prioritize implementation phases
+4. Begin RSA JWT migration (highest security impact)
+5. Follow with S3Service integration (required for photos)
+
+---
+
+## 15. REVISED Architecture Plan - Full Wallet-Service Alignment (2026-01-02)
+
+### David's Decisions (from clarification questions)
+
+| Question | Decision |
+|----------|----------|
+| **JWT Migration** | Copy wallet-service approach - API gateway authentication |
+| **Implementation Priority** | S3Service only (first priority) |
+| **API Design** | Copy wallet-service way - Internal APIs for BFF consumption |
+| **Guards Removal** | Remove ALL guards - Full wallet-service pattern |
+| **Company Context** | X-Company-Id header from BFF (trusted header) |
+
+### Revised Architecture: Full Wallet-Service Pattern
+
+**Key Changes from Current State:**
+
+1. **Remove ALL Endpoint Guards**
+   - Delete: `JwtAuthGuard`, `CompanyContextGuard`, `RolesGuard`, `PermissionsGuard`
+   - Authentication handled by external API gateway
+   - Authorization handled by BFF layer
+   - Umbrella-backend endpoints are "unauthenticated" (trust network/gateway)
+
+2. **Company Context via Header**
+   - BFF sends `X-Company-Id` header after authenticating user
+   - Umbrella-backend trusts this header unconditionally
+   - Create decorator to extract company context from header (not JWT)
+   - All multi-tenant queries use companyId from header
+
+3. **Internal API Design**
+   - APIs optimized for BFF consumption, not direct frontend use
+   - Frontend → BFF → umbrella-backend → Database
+   - BFF handles user session, JWT validation, permission checks
+   - Umbrella-backend handles pure business logic and data access
+
+4. **S3Service Priority**
+   - First implementation priority
+   - Copy wallet-service S3Service pattern exactly
+   - Enable file upload for installation photos
+
+### Files to REMOVE
+
+```
+src/shared/guard/
+├── JwtAuthGuard.ts          # DELETE
+├── CompanyContextGuard.ts   # DELETE
+├── RolesGuard.ts            # DELETE
+├── PermissionsGuard.ts      # DELETE
+└── index.ts                 # DELETE (or update)
+
+src/shared/decorator/
+├── CurrentUser.ts           # DELETE (no JWT user)
+├── Roles.ts                 # DELETE (roles in BFF)
+├── Permissions.ts           # DELETE (permissions in BFF)
+```
+
+### Files to MODIFY
+
+**1. `@CompanyContext()` Decorator** - Change to extract from header:
+```typescript
+// BEFORE: Extract from JWT user
+export const CompanyContext = createParamDecorator(
+  (data: unknown, ctx: ExecutionContext): string => {
+    const request = ctx.switchToHttp().getRequest();
+    return request.user?.companyId; // From JWT
+  },
+);
+
+// AFTER: Extract from X-Company-Id header
+export const CompanyContext = createParamDecorator(
+  (data: unknown, ctx: ExecutionContext): string => {
+    const request = ctx.switchToHttp().getRequest();
+    const companyId = request.headers['x-company-id'];
+    if (!companyId) {
+      throw new BadRequestException('X-Company-Id header is required');
+    }
+    return companyId;
+  },
+);
+```
+
+**2. All Controllers** - Remove guard decorators:
+```typescript
+// BEFORE
+@Controller('products')
+@UseGuards(JwtAuthGuard, CompanyContextGuard, RolesGuard, PermissionsGuard)
+export class ProductController {
+  @Get()
+  @Permissions('products:read')
+  async findAll(@CompanyContext() companyId: string) { ... }
+}
+
+// AFTER
+@Controller('products')
+export class ProductController {
+  @Get()
+  async findAll(@CompanyContext() companyId: string) { ... }
+}
+```
+
+**3. AuthModule** - Keep for token generation, remove guards:
+```typescript
+// Auth endpoints remain for token generation
+// But no guards on endpoints - BFF handles auth
+@Controller('auth')
+export class AuthController {
+  @Post('login')
+  async signIn(@Body() dto: SignInUserPayloadDto) { ... }
+
+  @Post('register')
+  async signUp(@Body() dto: SignUpPayloadDto) { ... }
+}
+```
+
+### Files to CREATE
+
+**S3Service** (`src/shared/service/S3Service.ts`) - Shared across ALL modules:
+```typescript
+// Copy wallet-service implementation exactly
+@Injectable()
+export class S3Service {
+  private s3Client: S3Client;
+  private bucketName: string;
+
+  constructor(private configService: ConfigService<EnvironmentVariables>) {
+    this.s3Client = new S3Client({
+      region: this.configService.get('AWS_REGION_NAME'),
+      credentials: {
+        accessKeyId: this.configService.get('AWS_ACCESS_KEY_ID'),
+        secretAccessKey: this.configService.get('AWS_SECRET_ACCESS_KEY'),
+      },
+    });
+    this.bucketName = this.configService.get('AWS_BUCKET_NAME');
+  }
+
+  async getSignedUploadUrl(key: string): Promise<string> { ... }
+  async getSignedDownloadUrl(key: string): Promise<string> { ... }
+  async uploadFile(key, buffer, contentType): Promise<{etag, bucket, key}> { ... }
+  async copyFile(destinationKey, copySource): Promise<{etag, bucket, key}> { ... }
+  async deleteFile(key: string): Promise<void> { ... }
+  getClient(): S3Client { ... }
+  getBucketName(): string { ... }
+}
+```
+
+**NO FileUploadModule** - Each module handles its own upload logic using S3Service directly.
+
+### S3 Key Naming Convention
+
+Each module generates S3 keys with this pattern:
+```
+{module}/{companyId}/{entityId}/{filename}
+
+Examples:
+- installations/{companyId}/{installationId}/photos/{uuid}.jpg
+- products/{companyId}/{productId}/images/{uuid}.jpg
+- companies/{companyId}/logo/{uuid}.png
+- users/{companyId}/{userId}/avatar/{uuid}.jpg
+- documents/{companyId}/{documentType}/{uuid}.pdf
+```
+
+### Modules Using S3Service
+
+| Module | Entity Field | S3 Key Pattern | Use Case |
+|--------|--------------|----------------|----------|
+| **Installation** | InstallationPhoto.s3Key | `installations/{cid}/{iid}/photos/{uuid}.jpg` | Before/after photos, progress |
+| **Product** | Product.imageKey | `products/{cid}/{pid}/images/{uuid}.jpg` | Product images |
+| **Company** | Company.logo | `companies/{cid}/logo/{uuid}.png` | Company logo |
+| **User** | User.avatar | `users/{cid}/{uid}/avatar/{uuid}.jpg` | Profile photos |
+
+### Example: Module Using S3Service
+
+```typescript
+// InstallationService example
+@Injectable()
+export class InstallationService {
+  constructor(
+    private s3Service: S3Service,
+    @InjectRepository(InstallationPhoto)
+    private photoRepository: Repository<InstallationPhoto>,
+  ) {}
+
+  async getPhotoUploadUrl(installationId: string, companyId: string) {
+    const key = `installations/${companyId}/${installationId}/photos/${uuid()}.jpg`;
+    const uploadUrl = await this.s3Service.getSignedUploadUrl(key);
+    return { uploadUrl, key };
+  }
+
+  async confirmPhotoUpload(key: string, installationId: string) {
+    const photo = this.photoRepository.create({ s3Key: key, installationId });
+    return this.photoRepository.save(photo);
+  }
+
+  async getPhotoDownloadUrl(photoId: string) {
+    const photo = await this.photoRepository.findOneByOrFail({ id: photoId });
+    return this.s3Service.getSignedDownloadUrl(photo.s3Key);
+  }
+}
+```
+
+### Implementation Phases (REVISED)
+
+**Phase 1: Remove Guards & Update Company Context (Day 1)**
+1. Delete guard files from `src/shared/guard/`
+2. Delete unused decorator files (`CurrentUser.ts`, `Roles.ts`, `Permissions.ts`)
+3. Update `@CompanyContext()` to extract from `X-Company-Id` header
+4. Remove `@UseGuards()` decorators from ALL controllers
+5. Remove `@Roles()` and `@Permissions()` decorators from ALL controllers
+6. Update controller tests (remove guard overrides, add header mocking)
+
+**Phase 2: S3Service Integration (Day 2-3)**
+1. Install AWS SDK packages:
+   ```bash
+   yarn add @aws-sdk/client-s3 @aws-sdk/s3-request-presigner
+   ```
+2. Create S3Service in `src/shared/service/S3Service.ts` (copy wallet-service implementation)
+3. Update EnvironmentVariables interface with AWS credentials
+4. Update environment files (base.env, local.env)
+5. Add S3Service unit tests
+
+**Phase 3: Update Existing Entities for S3 (Day 3)**
+1. Add S3 key fields to existing entities:
+   - `Company.logo` (string, nullable) - S3 key for company logo
+   - `User.avatar` (string, nullable) - Already exists
+   - `Product.imageKey` (string, nullable) - S3 key for product image
+2. Generate and run database migration
+3. Update DTOs to include image fields
+4. Add upload/download methods to respective services
+
+**Phase 4: Update Tests (Day 4-5)**
+1. Remove guard-related test setup from all controller tests
+2. Add X-Company-Id header mocking to all controller tests
+3. Add S3Service unit tests
+4. Update existing controller tests (remove guard overrides)
+5. Ensure >80% test coverage maintained
+
+**Phase 5: Installation Module (Future PR - Deferred)**
+1. Create Installation, InstallationEvent, InstallationPhoto entities
+2. Implement installation photo upload workflow using S3Service
+3. Generate database migration
+4. Add comprehensive tests
+
+### Branch Strategy
+
+- **Current Branch**: `feat/umbrella-backend-api` (continue on this branch)
+- **Target Branch**: `develop`
+- **No sub-branches needed** - changes are architectural, not feature-based
+
+### Security Considerations
+
+**This architecture assumes:**
+1. Umbrella-backend runs in a private network (not exposed to internet)
+2. Only BFF can reach umbrella-backend endpoints
+3. API gateway validates JWT before forwarding to BFF
+4. BFF adds X-Company-Id header after validating user's company access
+5. Network-level security (VPC, firewall rules) enforces this boundary
+
+**If umbrella-backend is exposed directly:**
+- This architecture is NOT secure
+- Guards would need to be kept
+- Consider using wallet-service's API gateway pattern
+
+### Modules Affected
+
+| Module | Changes Needed |
+|--------|----------------|
+| **shared/guard/** | DELETE all files |
+| **shared/decorator/** | Keep CompanyContext (modify), delete Roles/Permissions/CurrentUser |
+| **shared/service/** | ADD S3Service |
+| **company/** | Remove guards from controller, add logo field to entity |
+| **product/** | Remove guards from controller, add imageKey field to entity |
+| **client/** | Remove guards from controller |
+| **vendor/** | Remove guards from controller |
+| **sale/** | Remove guards from controller |
+| **purchase/** | Remove guards from controller |
+| **users/** | Remove guards from controller, avatar field already exists |
+| **auth/** | Keep for token generation, remove guards |
+
+### Test Updates Summary
+
+All controller test files need updating:
+- Remove `.overrideGuard(JwtAuthGuard)` chains
+- Remove `.overrideGuard(CompanyContextGuard)` chains
+- Remove `.overrideGuard(RolesGuard)` chains
+- Remove `.overrideGuard(PermissionsGuard)` chains
+- Add X-Company-Id header in test requests:
+  ```typescript
+  .set('X-Company-Id', mockCompanyId)
+  ```
+
+### Implementation Checklist
+
+**Phase 1: Remove Guards & Update Company Context** ✅
+- [ ] Delete `src/shared/guard/JwtAuthGuard.ts`
+- [ ] Delete `src/shared/guard/CompanyContextGuard.ts`
+- [ ] Delete `src/shared/guard/RolesGuard.ts`
+- [ ] Delete `src/shared/guard/PermissionsGuard.ts`
+- [ ] Delete `src/shared/guard/index.ts`
+- [ ] Delete `src/shared/decorator/CurrentUser.ts`
+- [ ] Delete `src/shared/decorator/Roles.ts`
+- [ ] Delete `src/shared/decorator/Permissions.ts`
+- [ ] Update `src/shared/decorator/CompanyContext.ts` to extract from header
+- [ ] Remove guards from CompanyController
+- [ ] Remove guards from ProductController
+- [ ] Remove guards from ClientController
+- [ ] Remove guards from VendorController
+- [ ] Remove guards from SaleController
+- [ ] Remove guards from PurchaseController
+- [ ] Remove guards from UserController
+- [ ] Remove guards from AuthController
+- [ ] Update all controller tests (remove guard overrides, add header mocking)
+
+**Phase 2: S3Service Integration** ✅
+- [ ] Install `@aws-sdk/client-s3` package
+- [ ] Install `@aws-sdk/s3-request-presigner` package
+- [ ] Create `src/shared/service/S3Service.ts` (copy from wallet-service)
+- [ ] Update `src/config/EnvironmentVariables.ts` with AWS variables
+- [ ] Update `environment/base.env` with AWS placeholders
+- [ ] Update `environment/local.env` with actual AWS credentials
+- [ ] Create S3Service unit tests
+
+**Phase 3: Update Entities for S3** ✅
+- [ ] Add `logo: string | null` field to Company entity
+- [ ] Add `imageKey: string | null` field to Product entity
+- [ ] Verify `avatar: string | null` exists on User entity
+- [ ] Update CompanyDto to include logo field
+- [ ] Update ProductDto to include imageKey field
+- [ ] Add `getLogoUploadUrl()` method to CompanyService
+- [ ] Add `getImageUploadUrl()` method to ProductService
+- [ ] Add `getAvatarUploadUrl()` method to UserService
+- [ ] Generate database migration for new fields
+- [ ] Run database migration
+
+**Phase 4: Update Tests** ✅
+- [ ] Update CompanyController tests (remove guards, add header)
+- [ ] Update ProductController tests (remove guards, add header)
+- [ ] Update ClientController tests (remove guards, add header)
+- [ ] Update VendorController tests (remove guards, add header)
+- [ ] Update SaleController tests (remove guards, add header)
+- [ ] Update PurchaseController tests (remove guards, add header)
+- [ ] Update UserController tests (remove guards, add header)
+- [ ] Update AuthController tests (remove guards, add header)
+- [ ] Add S3Service unit tests
+- [ ] Run full test suite and verify >80% coverage
+
+---
+
+*Last Updated: 2026-01-12*
+*Status: Plan Finalized - Simplified S3Service Approach - Ready for Implementation*
