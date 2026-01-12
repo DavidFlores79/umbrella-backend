@@ -10,4 +10,9 @@ export interface EnvironmentVariables {
   TWILIO_AUTH_TOKEN: string;
   TWILIO_VERIFY_SID: string;
   SALT_ROUND: string;
+  // AWS S3 Configuration
+  AWS_REGION_NAME: string;
+  AWS_ACCESS_KEY_ID: string;
+  AWS_SECRET_ACCESS_KEY: string;
+  AWS_BUCKET_NAME: string;
 }
