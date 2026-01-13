@@ -863,8 +863,8 @@ S3_EXPIRES_TIMEOUT=3600
 DOCUMENT_PROVIDER_NAME=S3
 
 # OneSignal (already configured)
-ONESIGNAL_APP_ID=***REDACTED-ONESIGNAL-APP-ID***
-ONESIGNAL_REST_API_KEY=os_v2_app_...
+ONESIGNAL_APP_ID=your-onesignal-app-id-here
+ONESIGNAL_REST_API_KEY=your-onesignal-rest-api-key-here
 
 # Database
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/umbrella-backend
@@ -905,8 +905,8 @@ AWS_SECRET_ACCESS_KEY=your-aws-secret-access-key-here
 S3_EXPIRES_TIMEOUT=3600
 
 # OneSignal (no changes)
-ONESIGNAL_APP_ID=***REDACTED-ONESIGNAL-APP-ID***
-ONESIGNAL_REST_API_KEY=***REDACTED-ONESIGNAL-API-KEY***
+ONESIGNAL_APP_ID=your-onesignal-app-id-here
+ONESIGNAL_REST_API_KEY=your-onesignal-rest-api-key-here
 
 # Database (no changes)
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/umbrella-backend
