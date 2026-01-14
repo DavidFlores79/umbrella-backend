@@ -98,6 +98,45 @@ export class CreateUserPayloadDto {
   @IsEnum(Group)
   group?: Group;
 
+  @ApiProperty({
+    type: String,
+    format: 'uuid',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  companyId?: string;
+
+  @ApiProperty({
+    type: String,
+    example: 'user',
+    enum: ['admin', 'manager', 'user'],
+    required: false,
+    default: 'user',
+  })
+  @IsOptional()
+  @IsString()
+  role?: string;
+
+  @ApiProperty({
+    type: [String],
+    example: ['users:read', 'users:write'],
+    required: false,
+    default: [],
+  })
+  @IsOptional()
+  permissions?: string[];
+
+  @ApiProperty({
+    type: String,
+    required: false,
+    example: 'https://example.com/avatar.png',
+  })
+  @IsOptional()
+  @IsString()
+  avatar?: string;
+
   @ApiProperty({ type: AddressDto, required: false })
   @IsOptional()
   addresses?: AddressDto[];

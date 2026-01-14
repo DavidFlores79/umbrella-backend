@@ -59,6 +59,8 @@ describe('AuthController', () => {
     updatedAt: new Date(),
     group: Group.CLIENT_USER,
     addresses: [],
+    role: 'user',
+    permissions: [],
   } as UserDto;
 
   const fakeSession: UserSessionDto = {

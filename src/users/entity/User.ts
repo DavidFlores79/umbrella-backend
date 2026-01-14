@@ -6,13 +6,24 @@ import {
   UpdateDateColumn,
   Index,
   OneToMany,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Address } from './Address';
+import { Company } from '../../company/entity/Company';
 
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ name: 'company_id', type: 'uuid', nullable: true })
+  @Index('idx_user_company_id')
+  companyId: string | null;
+
+  @ManyToOne(() => Company, { nullable: true })
+  @JoinColumn({ name: 'company_id' })
+  company: Company | null;
 
   @Column({ name: 'first_name', type: 'varchar', length: 150, nullable: true })
   @Index('idx_user_first_name', ['firstName'])
@@ -76,6 +87,13 @@ export class User {
 
   @Column({ name: 'group', type: 'varchar', length: 50, nullable: false })
   group: string;
+
+  @Column({ name: 'role', type: 'varchar', length: 20, default: 'user' })
+  @Index('idx_user_role')
+  role: string;
+
+  @Column({ name: 'permissions', type: 'jsonb', default: () => "'[]'::jsonb" })
+  permissions: string[];
 
   @Column({
     name: 'rfc',
@@ -145,6 +163,12 @@ export class User {
 
   @Column({ name: 'verified', type: 'boolean', default: false })
   verified: boolean;
+
+  @Column({ name: 'avatar', type: 'varchar', length: 500, nullable: true })
+  avatar: string | null;
+
+  @Column({ name: 'last_login', type: 'timestamptz', nullable: true })
+  lastLogin: Date | null;
 
   @CreateDateColumn({
     name: 'created_at',

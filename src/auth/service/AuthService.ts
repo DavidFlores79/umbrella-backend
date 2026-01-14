@@ -161,6 +161,8 @@ export class AuthService {
       profileCompleted: data.profileCompleted,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
+      role: data.role || 'user',
+      permissions: data.permissions || [],
     };
   }
 

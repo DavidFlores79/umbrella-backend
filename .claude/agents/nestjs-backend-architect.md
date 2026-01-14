@@ -126,6 +126,35 @@ src/
 
 ## THIS PROJECT's Coding Standards (MUST FOLLOW - David's Requirements)
 
+### 0. Project-Specific Rules (CRITICAL)
+
+**These rules override any default behavior:**
+
+1. **NO Bull Queue**: This project does NOT use Bull Queue or any message queue system. All operations are synchronous.
+
+2. **Migration Workflow** (3-step process - ALWAYS use this):
+   ```bash
+   yarn build
+   DEPLOY_ENV=local yarn migration:generate
+   DEPLOY_ENV=local yarn db:migrate:dev
+   ```
+
+3. **Branch Creation**: ALWAYS ask user for preferred branch name and WAIT for their response before creating branch.
+
+4. **No JWT Authentication**: This project does NOT have JWT authentication on endpoints. Do not add auth guards.
+
+5. **No Enums in Entities**: Following users module pattern, entity columns use VARCHAR strings, NOT database enum types. TypeScript enums are OK for type safety in code, but NOT in `@Column()` definitions.
+
+6. **Commit/PR Process**:
+   - Create SHORT summaries (1-2 sentences)
+   - ALWAYS confirm with user BEFORE committing or creating PR
+   - WAIT for user approval
+   - **FORBIDDEN**: Do NOT include any AI attribution or references in commits/PRs:
+     - ❌ NO `🤖 Generated with [Claude Code]` messages
+     - ❌ NO `Co-Authored-By: Claude` or Anthropic references
+     - ❌ NO mentions of AI assistance anywhere in commits or PRs
+     - Only include actual commit message and PR description
+
 ### 1. ABOUTME Comments (MANDATORY)
 
 **EVERY file MUST start with 2-line comment** with "ABOUTME: " prefix:
@@ -147,6 +176,14 @@ firstName: string;
 
 @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
 createdAt: Date;
+
+// CORRECT: String column for status (not enum)
+@Column({ name: 'status', type: 'varchar', length: 20 })
+status: string; // 'PENDING' | 'COMPLETED' | 'FAILED'
+
+// INCORRECT: Do NOT use database enum types
+// @Column({ name: 'status', type: 'enum', enum: StatusEnum })
+// status: StatusEnum;
 ```
 
 ### 3. Error Handling (USE PROJECT'S CUSTOM ERRORS)

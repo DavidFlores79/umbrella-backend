@@ -42,6 +42,9 @@ lerna-debug.log*
 .env.production.local
 .env.local
 
+# Environment files with sensitive data
+environment/
+
 # temp directory
 .temp
 .tmp
